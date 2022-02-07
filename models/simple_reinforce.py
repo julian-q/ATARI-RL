@@ -1,6 +1,7 @@
 from models.utils.measures import LL
 import numpy as np
 import pickle
+import matplotlib.pyplot as plt
 
 class SimpleREINFORCE:
     def __init__(self, layers):
@@ -47,7 +48,6 @@ class SimpleREINFORCE:
         for i, layer in reversed(list(enumerate(self.layers))):
             if i == len(self.layers) - 1:
                 a = cache[f'a{i + 1}']
-                # print(a)
                 da = self.log_likelihood.derivative(y, a)
             else:
                 dz_next = gradients[f'dz{i + 2}']
@@ -71,8 +71,8 @@ class SimpleREINFORCE:
 
     def train(self, env, n_episodes, alpha):
         for episode_num in range(n_episodes):
-            all_gradients = []
-            all_rewards = []
+            episode_gradients = []
+            episode_rewards = []
 
             prev_observation = env.reset()
             observation, reward, done, info = env.step(env.action_space.sample())
@@ -82,11 +82,8 @@ class SimpleREINFORCE:
             play_length = 0
 
             while not done:
-                env.render()
-
                 action_prob, cache = self.forward(x, training=True)
                 action = 1 if np.random.rand() < action_prob else 0
-                # print('action_prob:', action_prob, 'action:', action)
 
                 prev_observation = observation
                 observation, reward, done, info = env.step(action + 2) # because this env is weird
@@ -96,20 +93,19 @@ class SimpleREINFORCE:
 
                 y = np.array([[action]])
                 gradients = self.backward(x, y, cache)
-                print('gradients:', gradients)
-                all_gradients.append(gradients)
+                episode_gradients.append(gradients)
 
                 if reward != 0:
-                    print(f'play {play_num + 1:2d} finished after {play_length} steps with reward {reward:4.1f}')
+                    print(f'play {play_num + 1:2d} finished after {play_length:3d} steps with reward {reward:4.1f}')
 
-                    all_rewards.extend([reward] * play_length)
+                    episode_rewards.extend([reward] * play_length)
 
                     play_num += 1
                     play_length = 0
 
             print(f'episode {episode_num + 1} finished')
 
-            for gradients, reward in zip(all_gradients, all_rewards):
+            for gradients, reward in zip(episode_gradients, episode_rewards):
                 for i in range(len(self.layers)):
                     self.parameters[f'w{i + 1}'] += alpha * reward * gradients[f'dw{i + 1}']
                     self.parameters[f'b{i + 1}'] += alpha * reward * gradients[f'db{i + 1}']
@@ -117,5 +113,8 @@ class SimpleREINFORCE:
             self.save_parameters()
 
         env.close()
+
+        plt.plot(episode_rewards)
+        plt.show()
 
 
