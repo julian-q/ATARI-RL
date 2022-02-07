@@ -1,7 +1,6 @@
 from models.utils.measures import LL
 import numpy as np
 import pickle
-import matplotlib.pyplot as plt
 
 class SimpleREINFORCE: # as in http://karpathy.github.io/2016/05/31/rl/
     def __init__(self, layers):
