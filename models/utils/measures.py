@@ -12,4 +12,5 @@ class LL(Measure):
         return y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat)
 
     def derivative(self, y, y_hat):
-        return (y / y_hat) - ((1 - y) / (1 - y_hat))
+        eps = np.finfo(float).eps
+        return (y / (y_hat + eps)) - ((1 - y) / (1 - (y_hat + eps)))

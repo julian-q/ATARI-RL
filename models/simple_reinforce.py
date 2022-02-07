@@ -47,6 +47,7 @@ class SimpleREINFORCE:
         for i, layer in reversed(list(enumerate(self.layers))):
             if i == len(self.layers) - 1:
                 a = cache[f'a{i + 1}']
+                # print(a)
                 da = self.log_likelihood.derivative(y, a)
             else:
                 dz_next = gradients[f'dz{i + 2}']
@@ -85,7 +86,7 @@ class SimpleREINFORCE:
 
                 action_prob, cache = self.forward(x, training=True)
                 action = 1 if np.random.rand() < action_prob else 0
-                print('action_prob:', action_prob, 'action:', action)
+                # print('action_prob:', action_prob, 'action:', action)
 
                 prev_observation = observation
                 observation, reward, done, info = env.step(action + 2) # because this env is weird
@@ -95,6 +96,7 @@ class SimpleREINFORCE:
 
                 y = np.array([[action]])
                 gradients = self.backward(x, y, cache)
+                print('gradients:', gradients)
                 all_gradients.append(gradients)
 
                 if reward != 0:
