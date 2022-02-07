@@ -17,11 +17,11 @@ class REINFORCE: # as in Reinforcement Learning by Sutton & Barto (page 326)
             self.parameters[f'b{i + 1}'] = np.random.randn(layer['out_channels'])
 
     def save_parameters(self):
-        with open('./models/simple_reinforce.pkl', 'wb') as f:
+        with open('./models/reinforce.pkl', 'wb') as f:
             pickle.dump(self.parameters, f)
 
     def load_parameters(self):
-        with open('./models/simple_reinforce.pkl', 'rb') as f:
+        with open('./models/reinforce.pkl', 'rb') as f:
             self.parameters = pickle.load(f)
 
     def forward(self, s, training=False):
